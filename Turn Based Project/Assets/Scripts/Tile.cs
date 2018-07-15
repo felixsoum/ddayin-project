@@ -2,8 +2,11 @@
 
 public class Tile : MonoBehaviour
 {
-    public int X;
-    public int Y;
+    public int GScore { get; set; }
+    public int FScore { get; set; }
+
+    public int X { get; set; }
+    public int Y { get; set; }
     private MeshRenderer meshRenderer;
     public bool isObstacle;
     private bool isHighlighted;

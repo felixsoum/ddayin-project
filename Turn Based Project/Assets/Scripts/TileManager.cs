@@ -4,23 +4,6 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class TileManager : MonoBehaviour
 {
-    public class AStarTile
-    {
-        private readonly Tile tile;
-        public int GScore = int.MaxValue;
-        public int FScore = int.MaxValue;
-
-        public AStarTile(Tile tile)
-        {
-            this.tile = tile;
-        }
-
-        public Tile GetTile()
-        {
-            return tile;
-        }
-    }
-
     [SerializeField] private Player player;
     [SerializeField] private int playerStartX;
     [SerializeField] private int playerStartY;
@@ -112,43 +95,37 @@ public class TileManager : MonoBehaviour
     /// <param name="goal"></param>
     private List<Tile> AStar(Tile start, Tile goal)
     {
-        // Create AStarTiles
-        var aStarTiles = new AStarTile[columnCount, rowCount];
-
-        for (int i = 0; i < columnCount; i++)
+        // Reset scores
+        foreach (var tile in tiles)
         {
-            for (int j = 0; j < rowCount; j++)
-            {
-                aStarTiles[i, j] = new AStarTile(tiles[i, j]);
-            }
+            tile.GScore = int.MaxValue;
+            tile.FScore = int.MaxValue;
         }
-        var startAStarTile = aStarTiles[start.X, start.Y];
-        var goalAStarTile = aStarTiles[goal.X, goal.Y];
 
         // The set of nodes already evaluated
-        var closedSet = new HashSet<AStarTile>();
+        var closedSet = new HashSet<Tile>();
 
         // The set of currently discovered nodes that are not evaluated yet.
         // Initially, only the start node is known.
-        var openSet = new HashSet<AStarTile>
+        var openSet = new HashSet<Tile>
         {
-            startAStarTile
+            start
         };
 
         // For each node, which node it can most efficiently be reached from.
         // If a node can be reached from many nodes, cameFrom will eventually contain the
         // most efficient previous step.
-        var cameFrom = new Dictionary<AStarTile, AStarTile>();
+        var cameFrom = new Dictionary<Tile, Tile>();
 
         // The cost of going from start to start is zero.
-        startAStarTile.GScore = 0;
+        start.GScore = 0;
 
         // For the first node, that value is completely heuristic.
-        startAStarTile.FScore = Distance(start, goal);
+        start.FScore = Distance(start, goal);
 
         while (openSet.Count > 0)
         {
-            AStarTile current = null;
+            Tile current = null;
             foreach (var tile in openSet)
             {
                 if (current == null)
@@ -162,7 +139,7 @@ public class TileManager : MonoBehaviour
                 }
             }
 
-            if (current == goalAStarTile)
+            if (current == goal)
             {
                 return ReconstructPath(cameFrom, current);
             }
@@ -170,7 +147,7 @@ public class TileManager : MonoBehaviour
             openSet.Remove(current);
             closedSet.Add(current);
 
-            var neighbors = GetNeighbors(current, aStarTiles);
+            var neighbors = GetNeighbors(current);
             foreach (var neighbor in neighbors)
             {
                 if (closedSet.Contains(neighbor))
@@ -192,7 +169,7 @@ public class TileManager : MonoBehaviour
 
                 cameFrom[neighbor] = current;
                 neighbor.GScore = tentativeGScore;
-                neighbor.FScore = neighbor.GScore + Distance(neighbor.GetTile(), goal);
+                neighbor.FScore = neighbor.GScore + Distance(neighbor, goal);
             }
         }
 
@@ -200,9 +177,9 @@ public class TileManager : MonoBehaviour
         return null;
     }
 
-    private int GetNeighborDistance(AStarTile current, AStarTile neighbor)
+    private int GetNeighborDistance(Tile current, Tile neighbor)
     {
-        if (current.GetTile().isObstacle || neighbor.GetTile().isObstacle)
+        if (current.isObstacle || neighbor.isObstacle)
         {
             return 9999;
         }
@@ -214,39 +191,38 @@ public class TileManager : MonoBehaviour
         return Distance(start, goal);
     }
 
-    private List<Tile> ReconstructPath(Dictionary<AStarTile, AStarTile> cameFrom, AStarTile current)
+    private List<Tile> ReconstructPath(Dictionary<Tile, Tile> cameFrom, Tile current)
     {
         var totalPath = new List<Tile>
         {
-            current.GetTile()
+            current
         };
         while (cameFrom.ContainsKey(current))
         {
             current = cameFrom[current];
-            totalPath.Add(current.GetTile());
+            totalPath.Add(current);
         }
         return totalPath;
     }
 
-    private List<AStarTile> GetNeighbors(AStarTile aStarTile, AStarTile[,] aStarTiles)
+    private List<Tile> GetNeighbors(Tile tile)
     {
-        var list = new List<AStarTile>();
-        var tile = aStarTile.GetTile();
+        var list = new List<Tile>();
         if (tile.X > 0)
         {
-            list.Add(aStarTiles[tile.X - 1, tile.Y]);
+            list.Add(tiles[tile.X - 1, tile.Y]);
         }
         if (tile.X < columnCount - 1)
         {
-            list.Add(aStarTiles[tile.X + 1, tile.Y]);
+            list.Add(tiles[tile.X + 1, tile.Y]);
         }
         if (tile.Y > 0)
         {
-            list.Add(aStarTiles[tile.X, tile.Y - 1]);
+            list.Add(tiles[tile.X, tile.Y - 1]);
         }
         if (tile.Y < rowCount - 1)
         {
-            list.Add(aStarTiles[tile.X, tile.Y + 1]);
+            list.Add(tiles[tile.X, tile.Y + 1]);
         }
         return list;
     }
