@@ -3,10 +3,8 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField]
-    private float moveSpeed = 5;
-    [SerializeField]
-    private float distanceToTile = 0.5f;
+    [SerializeField] private float moveSpeed = 5;
+    [SerializeField] private float distanceToTile = 0.5f;
     public List<Tile> Path { get; set; }
     public Tile CurrentTile { get; set; }
 
@@ -29,7 +27,7 @@ public class Player : MonoBehaviour
         var playerPos = transform.position;
         var tilePos = CurrentTile.transform.position;
 
-        transform.position = Vector3.Lerp(transform.position, CurrentTile.transform.position, Time.deltaTime * moveSpeed);
+        transform.position = Vector3.Lerp(playerPos, tilePos, Time.deltaTime * moveSpeed);
         if (Vector3.Distance(playerPos, tilePos) < distanceToTile)
         {
             Path.RemoveAt(Path.Count - 1);

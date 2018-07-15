@@ -21,28 +21,19 @@ public class TileManager : MonoBehaviour
         }
     }
 
-    [SerializeField]
-    private Player player;
-    [SerializeField]
-    private int playerStartX;
-    [SerializeField]
-    private int playerStartY;
+    [SerializeField] private Player player;
+    [SerializeField] private int playerStartX;
+    [SerializeField] private int playerStartY;
     [SerializeField]
     private GameObject tilePrefab;
-    [SerializeField]
-    private Transform tileParent;
-    [SerializeField]
-    private Tile[,] tiles;
-    [SerializeField]
-    private int columnCount;
+    [SerializeField] private Transform tileParent;
+    [SerializeField] private Tile[,] tiles;
+    [SerializeField] private int columnCount;
     [SerializeField]
     private int prevColumnCount;
-    [SerializeField]
-    private int rowCount;
-    [SerializeField]
-    private int prevRowCount;
-    [SerializeField]
-    private float spaceBetweenTiles = 1.5f;
+    [SerializeField] private int rowCount;
+    [SerializeField] private int prevRowCount;
+    [SerializeField] private float spaceBetweenTiles = 1.5f;
     private bool isGame;
 
     private void Update()
